@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import Chatbot from "@/components/Chatbot";
 import { 
   Package, 
   Clock, 
@@ -19,23 +20,15 @@ import {
   Calendar,
   Eye,
   Edit3,
-  Trash2
+  Trash2,
+  ShoppingCart,
+  Truck
 } from "lucide-react";
 
 const VendorDashboard = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  
-  // Mock data
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const stats = [
-    { label: "Today's Orders", value: "3", icon: Package, color: "text-primary" },
-    { label: "In Transit", value: "2", icon: TruckIcon, color: "text-warning" },
-    { label: "Delivered", value: "15", icon: CheckCircle, color: "text-success" },
-    { label: "Cost Saved", value: "₹240", icon: Calendar, color: "text-primary" }
-  ];
-
-  const recentOrders = [
+  const [orders, setOrders] = useState([
     {
       id: "ORD001",
       items: "Rice 5kg, Dal 2kg, Oil 1L",
@@ -69,7 +62,17 @@ const VendorDashboard = () => {
       time: "16:00",
       deliveryPartner: "To be assigned"
     }
+  ]);
+  
+  // Mock data
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const stats = [
+    { label: "Today's Orders", value: "3", icon: Package, color: "text-primary" },
+    { label: "In Transit", value: "2", icon: TruckIcon, color: "text-warning" },
+    { label: "Delivered", value: "15", icon: CheckCircle, color: "text-success" },
+    { label: "Cost Saved", value: "₹240", icon: Calendar, color: "text-primary" }
   ];
+
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -80,7 +83,39 @@ const VendorDashboard = () => {
     return statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = (formData: FormData) => {
+    const items = formData.get('items') as string;
+    const deliveryTime = formData.get('delivery-time') as string;
+    const address = formData.get('address') as string;
+    const notes = formData.get('notes') as string;
+
+    if (!items || !deliveryTime || !address) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newOrder = {
+      id: `ORD${String(orders.length + 1).padStart(3, '0')}`,
+      items,
+      status: "pending",
+      groupSize: Math.floor(Math.random() * 4) + 2,
+      cost: `₹${Math.floor(Math.random() * 50) + 20}`,
+      savedAmount: `₹${Math.floor(Math.random() * 30) + 10}`,
+      date: new Date().toISOString().split('T')[0],
+      time: new Date(deliveryTime).toLocaleTimeString('en-IN', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }),
+      deliveryPartner: "To be assigned"
+    };
+
+    setOrders(prev => [newOrder, ...prev]);
+    setActiveTab("my-orders");
+    
     toast({
       title: "Order Placed Successfully!",
       description: "Your order has been added to the group delivery queue.",
@@ -144,8 +179,8 @@ const VendorDashboard = () => {
                   <CardDescription>Your delivery status for today</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentOrders.slice(0, 2).map((order) => (
+                <div className="space-y-4">
+                    {orders.slice(0, 2).map((order) => (
                       <div key={order.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -167,45 +202,41 @@ const VendorDashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Quick Actions */}
+              {/* Vendor & Supplier Integration */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Common tasks and shortcuts</CardDescription>
+                  <CardTitle>Vendor Benefits</CardTitle>
+                  <CardDescription>Why join our delivery network</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button 
-                      variant="outline" 
-                      className="h-auto p-4 flex flex-col gap-2"
-                      onClick={() => setActiveTab("place-order")}
-                    >
-                      <Plus className="h-6 w-6" />
-                      <span>Place Order</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-auto p-4 flex flex-col gap-2"
-                      onClick={() => setActiveTab("my-orders")}
-                    >
-                      <Package className="h-6 w-6" />
-                      <span>My Orders</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-auto p-4 flex flex-col gap-2"
-                      onClick={() => setActiveTab("group-details")}
-                    >
-                      <Users className="h-6 w-6" />
-                      <span>Group Info</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-auto p-4 flex flex-col gap-2"
-                    >
-                      <MapPin className="h-6 w-6" />
-                      <span>Track Delivery</span>
-                    </Button>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <ShoppingCart className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Cost Savings</h4>
+                        <p className="text-sm text-muted-foreground">Save up to 40% on delivery costs through group orders</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <Truck className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Reliable Delivery</h4>
+                        <p className="text-sm text-muted-foreground">Professional suppliers with optimized routes</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <Users className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Community Network</h4>
+                        <p className="text-sm text-muted-foreground">Connect with local vendors in your area</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -220,23 +251,31 @@ const VendorDashboard = () => {
                 <CardDescription>Add items to your delivery request</CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handlePlaceOrder(); }}>
+                <form className="space-y-6" onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  const formData = new FormData(e.currentTarget);
+                  handlePlaceOrder(formData); 
+                }}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="items">Items & Quantities</Label>
                         <Textarea
                           id="items"
+                          name="items"
                           placeholder="e.g., Rice 5kg, Dal 2kg, Milk 2L"
                           className="mt-1 min-h-[100px]"
+                          required
                         />
                       </div>
                       <div>
                         <Label htmlFor="delivery-time">Preferred Delivery Time</Label>
                         <Input
                           id="delivery-time"
+                          name="delivery-time"
                           type="datetime-local"
                           className="mt-1"
+                          required
                         />
                       </div>
                     </div>
@@ -245,14 +284,17 @@ const VendorDashboard = () => {
                         <Label htmlFor="address">Delivery Address</Label>
                         <Textarea
                           id="address"
+                          name="address"
                           placeholder="Enter complete delivery address"
                           className="mt-1 min-h-[100px]"
+                          required
                         />
                       </div>
                       <div>
                         <Label htmlFor="notes">Special Instructions</Label>
                         <Input
                           id="notes"
+                          name="notes"
                           placeholder="Any special delivery notes"
                           className="mt-1"
                         />
@@ -289,7 +331,7 @@ const VendorDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentOrders.map((order) => (
+                  {orders.map((order) => (
                     <div key={order.id} className="border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -392,6 +434,7 @@ const VendorDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <Chatbot />
     </div>
   );
 };
