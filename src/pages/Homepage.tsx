@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Truck,
   Users,
@@ -13,7 +13,11 @@ import {
   ArrowRight,
   Package,
   Route,
-  TrendingDown
+  TrendingDown,
+  ShoppingCart,
+  UserCheck,
+  Building2,
+  Plus
 } from "lucide-react";
 import heroImage from "@/assets/hero-delivery.jpg";
 import groupDeliveryIcon from "@/assets/group-delivery-icon.jpg";
@@ -21,48 +25,56 @@ import routeOptimizationIcon from "@/assets/route-optimization-icon.jpg";
 import costSavingsIcon from "@/assets/cost-savings-icon.jpg";
 
 const Homepage = () => {
-  const benefits = [
+  const navigate = useNavigate();
+
+  const handleNewOrder = () => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      navigate('/vendor-dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const vendorFeatures = [
     {
-      icon: DollarSign,
-      title: "Cost Sharing",
-      description: "Split delivery costs with other vendors in your area",
-      color: "text-success"
-    },
-    {
-      icon: Route,
-      title: "Route Optimization",
-      description: "AI-powered route planning for maximum efficiency",
+      icon: ShoppingCart,
+      title: "Easy Ordering",
+      description: "Simple interface to place and manage your delivery orders",
       color: "text-primary"
     },
     {
-      icon: Clock,
-      title: "Time Saving",
-      description: "Faster deliveries through optimized group routes",
+      icon: DollarSign,
+      title: "Cost Savings",
+      description: "Save up to 40% on delivery costs through group orders",
+      color: "text-success"
+    },
+    {
+      icon: Users,
+      title: "Community Network",
+      description: "Connect with local vendors and share delivery routes",
       color: "text-warning"
     }
   ];
 
-  const howItWorks = [
+  const supplierFeatures = [
     {
-      step: "1",
-      title: "Place Your Order",
-      description: "Vendors select items, quantities, and delivery preferences",
-      icon: Package,
-      image: groupDeliveryIcon
+      icon: Route,
+      title: "Route Optimization",
+      description: "AI-powered routing to maximize efficiency and earnings",
+      color: "text-primary"
     },
     {
-      step: "2",
-      title: "Smart Grouping",
-      description: "Our AI groups orders by location and route optimization",
-      icon: Users,
-      image: routeOptimizationIcon
-    },
-    {
-      step: "3",
-      title: "Efficient Delivery",
-      description: "Suppliers deliver multiple orders in one optimized trip",
       icon: Truck,
-      image: costSavingsIcon
+      title: "Fleet Management",
+      description: "Manage multiple deliveries with real-time tracking",
+      color: "text-success"
+    },
+    {
+      icon: Building2,
+      title: "Business Growth",
+      description: "Expand your delivery business with grouped orders",
+      color: "text-warning"
     }
   ];
 
@@ -119,7 +131,11 @@ const Homepage = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" variant="hero" asChild className="text-lg px-8 py-6">
+                <Button size="lg" variant="hero" onClick={handleNewOrder} className="text-lg px-8 py-6">
+                  <Plus className="mr-2 h-5 w-5" />
+                  New Order
+                </Button>
+                <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
                   <Link to="/signup?role=vendor">
                     Join as Vendor
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -168,65 +184,76 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-muted/30">
+      {/* Vendor Features */}
+      <section id="vendor-features" className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              How It Works
+              For Vendors
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Simple, efficient, and smart. Get started in three easy steps.
+              Join our platform and start saving on delivery costs while reaching more customers.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {howItWorks.map((item, index) => (
-              <Card key={index} className="relative overflow-hidden border-0 shadow-card hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {vendorFeatures.map((feature, index) => (
+              <Card key={index} className="border-0 shadow-card hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <CardContent className="p-8 text-center">
-                  <div className="relative mb-6">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-20 h-20 mx-auto rounded-2xl mb-4"
-                    />
-                    <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
-                      {item.step}
-                    </div>
+                  <div className={`inline-flex p-4 rounded-2xl bg-background mb-6 ${feature.color}`}>
+                    <feature.icon className="h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
+                  <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          <div className="text-center">
+            <Button size="lg" variant="hero" asChild>
+              <Link to="/signup?role=vendor">
+                <UserCheck className="mr-2 h-5 w-5" />
+                Join as Vendor
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
-      <section id="benefits" className="py-20">
+      {/* Supplier Features */}
+      <section id="supplier-features" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Why Choose GroupDeliver?
+              For Suppliers
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience the benefits of smart group delivery technology.
+              Optimize your delivery business with our smart routing and group order management.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {supplierFeatures.map((feature, index) => (
               <Card key={index} className="border-0 shadow-card hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <CardContent className="p-8 text-center">
-                  <div className={`inline-flex p-4 rounded-2xl bg-background mb-6 ${benefit.color}`}>
-                    <benefit.icon className="h-8 w-8" />
+                  <div className={`inline-flex p-4 rounded-2xl bg-background mb-6 ${feature.color}`}>
+                    <feature.icon className="h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{benefit.title}</h3>
-                  <p className="text-muted-foreground">{benefit.description}</p>
+                  <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          <div className="text-center">
+            <Button size="lg" variant="hero" asChild>
+              <Link to="/signup?role=supplier">
+                <Truck className="mr-2 h-5 w-5" />
+                Join as Supplier
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

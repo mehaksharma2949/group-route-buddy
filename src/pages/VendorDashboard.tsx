@@ -434,7 +434,6 @@ const VendorDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <Chatbot />
     </div>
   );
 };

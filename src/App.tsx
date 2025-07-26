@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Chatbot from "./components/Chatbot";
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -27,6 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {!isDashboard && <Navbar />}
       {children}
       {!isDashboard && <Footer />}
+      <Chatbot />
     </>
   );
 };
